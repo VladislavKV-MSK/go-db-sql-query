@@ -53,7 +53,7 @@ func main() {
 	fmt.Println(client)
 
 	// обновление логина клиента
-	newLogin := "" // укажите новый логин
+	newLogin := "newlogin" // укажите новый логин
 	err = updateClientLogin(db, newLogin, id)
 	if err != nil {
 		fmt.Println(err)
@@ -94,7 +94,11 @@ func insertClient(db *sql.DB, client Client) (int64, error) {
    	if err != nil {
        	 	return 0, err
     	}
-	return res.LastInsertId(), nil // вместо 0 верните идентификатор добавленной записи
+	lastID, err := res.LastInsertId()
+	if err != nil {
+       	 	return 0, err
+    	}
+	return lastID, nil // вместо 0 верните идентификатор добавленной записи
 }
 
 func updateClientLogin(db *sql.DB, login string, id int64) error {
@@ -111,10 +115,7 @@ func updateClientLogin(db *sql.DB, login string, id int64) error {
 func deleteClient(db *sql.DB, id int64) error {
 	// напишите здесь код для удаления записи из таблицы clients по заданному id
 	_, err = db.Exec("DELETE FROM clients WHERE id = :id", sql.Named("id", id))
-    	if err != nil {
-        	return
-    	}
-	return nil
+	return err
 }
 
 func selectClient(db *sql.DB, id int64) (Client, error) {
